@@ -3,25 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-   
-    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+    <title>Minha Lista de Tarefas</title>
 </head>
 <body>
-    <div class="container">
-        <h1><i class="fas fa-list-check"></i> Minha Lista de Tarefas</h1>
-    
-    <form id="todo-form">
-        <input type="text" name="" id="todo-input" placeholder="Adicione uma nova tarefa" required>
-        <button type="submit">Adicionar</button>
-    </form>
-        <ul id="todo-list"></ul>
-
+    <div class="container py-5">
+        <div class="card shadow-lg px-4 py-5">
+            <div class="card-body ">
+                <h1 class="card-title text-center mb-4">
+                    <i class="fas fa-list-check"></i> Minha Lista de Tarefas
+                </h1>
+                
+                <form id="todo-form" class="mb-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="todo-input" placeholder="Adicione uma nova tarefa (max 60 carac.)" maxlength="60" required>
+                        <button class="btn btn-primary" type="submit">Adicionar</button>
+                    </div>
+                </form>
+                
+                <div id="limit-alert" class="alert alert-warning d-none text-center" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> Limite de 10 tarefas por dia atingido!
+                </div>
+                
+                <ul id="todo-list" class="list-group mb-4"></ul>
+                
+                <div class="d-flex justify-content-between mb-4 px-3 py-2 text-muted small fw-bold" style="background: rgba(0,0,0,0.05); border-radius: 8px;">
+                    <span>Total: <span id="stat-total" class="text-dark">0</span></span>
+                    <span>Pendentes: <span id="stat-active" class="text-primary">0</span></span>
+                    <span>Concluídas: <span id="stat-completed" class="text-success">0</span></span>
+                </div>
+                
+                <h2 class="h5 mt-4 mb-3">
+                    <i class="fas fa-check-circle"></i> Histórico (<span id="history-count">0</span>)
+                </h2>
+                <ul id="history-list" class="list-group"></ul>
+            </div>
+        </div>
     </div>
-
     
-    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./scripts.js"></script>
 </body>
 </html>
