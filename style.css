@@ -17,20 +17,34 @@ body {
 }
 
 .btn-primary {
-    background-color: #f200ff;
-    border-color: #f200ff;
+    background-color: #fdf3ff;
+    border-color: #fdf3ff;
+    color: #f200ff;
+    font-weight: 600;
 }
 
 .btn-primary:hover {
-    background-color: #d000dd;
-    border-color: #d000dd;
+    background-color: #f2e2f5;
+    border-color: #f2e2f5;
+    color: #d000dd;
+}
+
+.custom-rank {
+    background-color: #f200ff !important;
+    color: white !important;
 }
 
 .list-group-item {
-    background-color: #f200ff;
+    background-color: #fdf3ff;
     border: none;
     transition: all 0.2s ease;
     word-break: break-word; /* Prevents long words without spaces from breaking UI */
+}
+
+.list-group-item.dragging {
+    opacity: 0.5;
+    background-color: #ffb3ff !important;
+    transform: scale(0.98);
 }
 
 .history-item {

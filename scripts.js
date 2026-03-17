@@ -6,6 +6,15 @@ const historyCount = document.getElementById('history-count');
 const statTotal = document.getElementById('stat-total');
 const statActive = document.getElementById('stat-active');
 const statCompleted = document.getElementById('stat-completed');
+const charLimitPopup = document.getElementById('char-limit-popup');
+
+input.addEventListener('input', () => {
+    if (input.value.length >= 60) {
+        charLimitPopup.classList.remove('d-none');
+    } else {
+        charLimitPopup.classList.add('d-none');
+    }
+});
 
 let taskCount = 0;
 let completedCount = 0;
@@ -17,21 +26,28 @@ function updateStats() {
     if (statTotal) statTotal.textContent = taskCount + completedCount;
 }
 
-function addTask(tasktext, predefinedTimeStr = null) {
+function updateRanks() {
+    const items = list.querySelectorAll('li:not(.history-item)');
+    items.forEach((item, index) => {
+        const badge = item.querySelector('.rank-badge');
+        if (badge) {
+            badge.textContent = `${index + 1}º`;
+            badge.className = 'badge rounded-pill me-2 rank-badge custom-rank';
+        }
+    });
+}
+
+function addTask(tasktext) {
     taskCount++;
     const li = document.createElement('li');
     li.className = 'list-group-item d-flex align-items-center justify-content-between py-2 px-3 mb-2 rounded shadow-sm gap-2';
-    
-    // Store creation time inside the element dataset for later use
-    let creationTimeStr = predefinedTimeStr;
-    if (!creationTimeStr) {
-        const now = new Date();
-        creationTimeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    }
-    li.dataset.creationTime = creationTimeStr;
+    li.style.cursor = 'grab';
     
     const leftContainer = document.createElement('div');
     leftContainer.className = 'd-flex align-items-center flex-grow-1 overflow-hidden';
+    
+    const gripIcon = document.createElement('i');
+    gripIcon.className = 'fas fa-grip-vertical text-black-50 me-2';
     
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
@@ -43,19 +59,21 @@ function addTask(tasktext, predefinedTimeStr = null) {
         }
     });
 
+    const badge = document.createElement('span');
+    badge.className = 'badge rounded-pill me-2 rank-badge bg-secondary';
+    badge.textContent = '-';
+
     const span = document.createElement('span');
     span.textContent = tasktext;
     span.className = 'fw-medium text-dark text-break';
     
+    leftContainer.appendChild(gripIcon);
     leftContainer.appendChild(checkbox);
+    leftContainer.appendChild(badge);
     leftContainer.appendChild(span);
     
     const rightContainer = document.createElement('div');
     rightContainer.className = 'd-flex align-items-center flex-shrink-0';
-
-    const timeSpan = document.createElement('small');
-    timeSpan.className = 'text-muted ms-auto me-2 bg-light px-2 py-1 rounded d-flex align-items-center gap-1 text-nowrap';
-    timeSpan.innerHTML = `<i class="far fa-clock"></i> ${creationTimeStr}`;
 
     const deleteBtn = document.createElement('button');
     deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
@@ -64,14 +82,16 @@ function addTask(tasktext, predefinedTimeStr = null) {
         li.remove();
         taskCount--;
         updateStats();
+        updateRanks();
     });
     
-    rightContainer.appendChild(timeSpan);
     rightContainer.appendChild(deleteBtn);
     
     li.appendChild(leftContainer);
     li.appendChild(rightContainer);
     list.appendChild(li);
+    
+    updateRanks();
 }
 
 form.addEventListener('submit', function(event) {
@@ -90,6 +110,7 @@ form.addEventListener('submit', function(event) {
 
     addTask(tasktext);
     input.value = '';
+    charLimitPopup.classList.add('d-none');
     
     updateStats();
 });
@@ -98,10 +119,6 @@ function moveToHistory(tasktext, taskElement) {
     taskElement.remove();
     taskCount--;
     completedCount++;
-    
-    // Retrieve creation time
-    const creationTimeStr = taskElement.dataset.creationTime;
-    taskElement.remove();
     
     const historyItem = document.createElement('li');
     historyItem.className = 'list-group-item history-item d-flex justify-content-between align-items-center py-2 px-3 mb-2 rounded shadow-sm opacity-75 gap-2';
@@ -118,7 +135,7 @@ function moveToHistory(tasktext, taskElement) {
     undoBtn.addEventListener('click', () => {
         historyItem.remove();
         completedCount--;
-        addTask(tasktext, creationTimeStr);
+        addTask(tasktext);
         historyCount.textContent = completedCount;
         updateStats();
     });
@@ -134,17 +151,12 @@ function moveToHistory(tasktext, taskElement) {
     timeContainer.className = 'd-flex flex-column text-end pt-1 pb-1 px-2 rounded bg-white bg-opacity-25 text-nowrap flex-shrink-0 ms-2';
     timeContainer.style.minWidth = 'fit-content';
     
-    const createdSpan = document.createElement('small');
-    createdSpan.style.fontSize = '0.70rem';
-    createdSpan.innerHTML = `Adicionada: <strong>${creationTimeStr}</strong>`;
-    
     const completedSpan = document.createElement('small');
     const now = new Date();
     const completedTimeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     completedSpan.style.fontSize = '0.70rem';
     completedSpan.innerHTML = `Concluída: <strong>${completedTimeStr}</strong>`;
     
-    timeContainer.appendChild(createdSpan);
     timeContainer.appendChild(completedSpan);
     
     historyItem.appendChild(leftContainer);
@@ -153,5 +165,18 @@ function moveToHistory(tasktext, taskElement) {
     
     historyCount.textContent = completedCount;
     updateStats();
+    updateRanks();
 }
+
+// Inicializar a funcionalidade de arrastar e soltar (drag & drop) usando SortableJS
+if (typeof Sortable !== 'undefined') {
+    new Sortable(list, {
+        animation: 150,
+        ghostClass: 'opacity-50',
+        onEnd: function () {
+            updateRanks();
+        }
+    });
+}
+
 
