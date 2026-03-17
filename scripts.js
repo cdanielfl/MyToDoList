@@ -17,27 +17,17 @@ function updateStats() {
     if (statTotal) statTotal.textContent = taskCount + completedCount;
 }
 
-form.addEventListener('submit', function(event) {
-    event.preventDefault();
-    
-    // Check limit based on total tasks (active + completed)
-    if ((taskCount + completedCount) >= MAX_TASKS) {
-        const alertElement = document.getElementById('limit-alert');
-        alertElement.classList.remove('d-none');
-        setTimeout(() => alertElement.classList.add('d-none'), 3000);
-        return;
-    }
-    
-    const tasktext = input.value.trim();
-    if (tasktext === '') return; 
-
+function addTask(tasktext, predefinedTimeStr = null) {
     taskCount++;
     const li = document.createElement('li');
     li.className = 'list-group-item d-flex align-items-center justify-content-between py-2 px-3 mb-2 rounded shadow-sm gap-2';
     
     // Store creation time inside the element dataset for later use
-    const now = new Date();
-    const creationTimeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    let creationTimeStr = predefinedTimeStr;
+    if (!creationTimeStr) {
+        const now = new Date();
+        creationTimeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
     li.dataset.creationTime = creationTimeStr;
     
     const leftContainer = document.createElement('div');
@@ -82,6 +72,23 @@ form.addEventListener('submit', function(event) {
     li.appendChild(leftContainer);
     li.appendChild(rightContainer);
     list.appendChild(li);
+}
+
+form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    // Check limit based on total tasks (active + completed)
+    if ((taskCount + completedCount) >= MAX_TASKS) {
+        const alertElement = document.getElementById('limit-alert');
+        alertElement.classList.remove('d-none');
+        setTimeout(() => alertElement.classList.add('d-none'), 3000);
+        return;
+    }
+    
+    const tasktext = input.value.trim();
+    if (tasktext === '') return; 
+
+    addTask(tasktext);
     input.value = '';
     
     updateStats();
@@ -99,12 +106,32 @@ function moveToHistory(tasktext, taskElement) {
     const historyItem = document.createElement('li');
     historyItem.className = 'list-group-item history-item d-flex justify-content-between align-items-center py-2 px-3 mb-2 rounded shadow-sm opacity-75 gap-2';
     
+    const leftContainer = document.createElement('div');
+    leftContainer.className = 'd-flex align-items-center flex-grow-1 overflow-hidden';
+    
+    const undoBtn = document.createElement('button');
+    undoBtn.innerHTML = '<i class="fas fa-undo"></i>';
+    undoBtn.className = 'btn btn-sm btn-outline-secondary border-0 d-flex align-items-center me-3 flex-shrink-0';
+    undoBtn.title = "Restaurar para a lista pendente";
+    undoBtn.style.padding = '4px 8px';
+    
+    undoBtn.addEventListener('click', () => {
+        historyItem.remove();
+        completedCount--;
+        addTask(tasktext, creationTimeStr);
+        historyCount.textContent = completedCount;
+        updateStats();
+    });
+    
     const textSpan = document.createElement('span');
     textSpan.textContent = tasktext;
-    textSpan.className = 'fw-medium text-decoration-line-through text-break flex-grow-1 overflow-hidden';
+    textSpan.className = 'fw-medium text-decoration-line-through text-break';
+    
+    leftContainer.appendChild(undoBtn);
+    leftContainer.appendChild(textSpan);
     
     const timeContainer = document.createElement('div');
-    timeContainer.className = 'd-flex flex-column text-end pt-1 pb-1 px-2 rounded bg-white bg-opacity-25 text-nowrap flex-shrink-0';
+    timeContainer.className = 'd-flex flex-column text-end pt-1 pb-1 px-2 rounded bg-white bg-opacity-25 text-nowrap flex-shrink-0 ms-2';
     timeContainer.style.minWidth = 'fit-content';
     
     const createdSpan = document.createElement('small');
@@ -120,7 +147,7 @@ function moveToHistory(tasktext, taskElement) {
     timeContainer.appendChild(createdSpan);
     timeContainer.appendChild(completedSpan);
     
-    historyItem.appendChild(textSpan);
+    historyItem.appendChild(leftContainer);
     historyItem.appendChild(timeContainer);
     historyList.appendChild(historyItem);
     
