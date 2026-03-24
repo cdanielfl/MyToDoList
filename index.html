@@ -19,12 +19,12 @@
                     <i class="fas fa-list-check"></i> Minha Lista de Tarefas
                 </h1>
                 
-                <form id="todo-form" class="mb-4 position-relative">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="todo-input" placeholder="Adicione uma nova tarefa (max 60 carac.)" maxlength="60" required>
-                        <button class="btn btn-primary" type="submit">Adicionar</button>
+                <form id="todo-form" class="mb-4">
+                    <div class="d-flex flex-column flex-sm-row gap-2">
+                        <input type="text" class="form-control form-control-lg flex-grow-1 fs-6" id="todo-input" placeholder="Adicione uma nova tarefa..." maxlength="60" required>
+                        <button class="btn btn-primary text-nowrap" type="submit"><i class="fas fa-plus me-1"></i> Adicionar</button>
                     </div>
-                    <div id="char-limit-popup" class="text-danger small mt-1 d-none position-absolute" style="bottom: -22px; right: 0; transition: opacity 0.3s ease;">
+                    <div id="char-limit-popup" class="text-danger small mt-2 d-none" style="transition: opacity 0.3s ease;">
                         <i class="fas fa-exclamation-circle"></i> Limite de 60 caracteres atingido!
                     </div>
                 </form>
