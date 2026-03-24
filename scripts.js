@@ -49,12 +49,32 @@ function addTask(tasktext) {
     const gripIcon = document.createElement('i');
     gripIcon.className = 'fas fa-grip-vertical text-black-50 me-2';
     
+    let isEditing = false;
+
+    function saveEditFn(editInput) {
+        if (!editInput) return;
+        const newText = editInput.value.trim();
+        if (newText !== '') {
+            span.textContent = newText;
+            tasktext = newText; // updates the closure variable
+        }
+        leftContainer.replaceChild(span, editInput);
+        isEditing = false;
+        editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+        editBtn.classList.replace('btn-outline-success', 'btn-outline-primary');
+        editBtn.title = 'Editar tarefa';
+    }
+    
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.className = 'form-check-input me-3 mt-0 flex-shrink-0';
     checkbox.style.transform = "scale(1.2)";
     checkbox.addEventListener('change', () => {
         if (checkbox.checked) {
+            if (isEditing) {
+                const editInput = leftContainer.querySelector('input[type="text"]');
+                if (editInput) saveEditFn(editInput);
+            }
             moveToHistory(tasktext, li);
         }
     });
@@ -75,6 +95,38 @@ function addTask(tasktext) {
     const rightContainer = document.createElement('div');
     rightContainer.className = 'd-flex align-items-center flex-shrink-0';
 
+    const editBtn = document.createElement('button');
+    editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+    editBtn.className = 'btn btn-sm btn-outline-primary border-0 d-flex align-items-center me-1';
+    editBtn.title = 'Editar tarefa';
+    
+    editBtn.addEventListener('click', () => {
+        if (!isEditing) {
+            isEditing = true;
+            editBtn.innerHTML = '<i class="fas fa-save"></i>';
+            editBtn.classList.replace('btn-outline-primary', 'btn-outline-success');
+            editBtn.title = 'Salvar tarefa';
+            
+            const editInput = document.createElement('input');
+            editInput.type = 'text';
+            editInput.className = 'form-control form-control-sm';
+            editInput.value = span.textContent;
+            editInput.maxLength = 60;
+            
+            leftContainer.replaceChild(editInput, span);
+            editInput.focus();
+            
+            editInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    saveEditFn(editInput);
+                }
+            });
+        } else {
+            const editInput = leftContainer.querySelector('input[type="text"]');
+            saveEditFn(editInput);
+        }
+    });
+
     const deleteBtn = document.createElement('button');
     deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
     deleteBtn.className = 'btn btn-sm btn-outline-danger border-0 d-flex align-items-center';
@@ -85,6 +137,7 @@ function addTask(tasktext) {
         updateRanks();
     });
     
+    rightContainer.appendChild(editBtn);
     rightContainer.appendChild(deleteBtn);
     
     li.appendChild(leftContainer);
