@@ -20,6 +20,13 @@ let taskCount = 0;
 let completedCount = 0;
 const MAX_TASKS = 10;
 
+function normalizeTaskText(text) {
+    const trimmedText = text.trim();
+    if (trimmedText === '') return '';
+
+    return trimmedText.charAt(0).toLocaleUpperCase('pt-BR') + trimmedText.slice(1).toLocaleLowerCase('pt-BR');
+}
+
 function updateStats() {
     if (statActive) statActive.textContent = taskCount;
     if (statCompleted) statCompleted.textContent = completedCount;
@@ -38,6 +45,7 @@ function updateRanks() {
 }
 
 function addTask(tasktext) {
+    tasktext = normalizeTaskText(tasktext);
     taskCount++;
     const li = document.createElement('li');
     li.className = 'list-group-item d-flex align-items-center justify-content-between py-2 px-3 mb-2 rounded shadow-sm gap-2';
@@ -55,8 +63,9 @@ function addTask(tasktext) {
         if (!editInput) return;
         const newText = editInput.value.trim();
         if (newText !== '') {
-            span.textContent = newText;
-            tasktext = newText; // updates the closure variable
+            const normalizedText = normalizeTaskText(newText);
+            span.textContent = normalizedText;
+            tasktext = normalizedText; // updates the closure variable
         }
         leftContainer.replaceChild(span, editInput);
         isEditing = false;
@@ -158,7 +167,7 @@ form.addEventListener('submit', function(event) {
         return;
     }
     
-    const tasktext = input.value.trim();
+    const tasktext = normalizeTaskText(input.value);
     if (tasktext === '') return; 
 
     addTask(tasktext);
@@ -231,5 +240,4 @@ if (typeof Sortable !== 'undefined') {
         }
     });
 }
-
 
